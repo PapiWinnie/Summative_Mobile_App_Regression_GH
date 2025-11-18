@@ -1,15 +1,34 @@
 # Student Housing Rent Predictor
 
 ## Mission
-My mission is to simplify the process of finding student housing in Rwanda by predicting apartment rental prices. By providing reliable estimates, I aim to help students make informed decisions and assist at least 200 students by 2027.
+My mission is to simplify and streamline the process of student housing search and settlement in Rwanda by providing accurate rental price predictions. I aim to make the process faster, more informed, and reliable, with the specific goal of helping at least 200 students find suitable housing by 2027.
 
 
 ## Dataset
-Since there is no public dataset for student housing in Rwanda, I used a rich Kaggle dataset: **`apartments_for_rent_classified_10K.csv`**. This dataset contains 10,000 apartment listings with features like bedrooms, bathrooms, square footage, location, and property attributes, providing enough volume and variety to train regression models effectively.
+Since there is no public dataset for student housing in Rwanda, I used a Kaggle dataset: **[Ghana House Rental Dataset](https://www.kaggle.com/datasets/epigos/ghana-house-rental-dataset)**.
 
-**Key Features Used:**
-- **Numeric:** `bathrooms`, `bedrooms`, `square_feet`, `latitude`, `longitude`
-- **Categorical:** `category`, `price_type`, `has_photo`, `pets_allowed`
+**Instructions:**  
+- Download the dataset from Kaggle.  
+- Place the CSV file as `house_rentals.csv` under:
+
+linear_regression_model/summative/linear_regression/
+
+
+This dataset contains listings with features like bedrooms, bathrooms, square footage, location, property condition, furnishing status, amenities, and other attributes. It provides enough variety to train regression models effectively.
+
+**Key Features Used in My Model:**
+
+- **Numeric:**  
+  `bathrooms`, `bedrooms`, `square_feet`, `latitude`, `longitude`
+
+- **Categorical:**  
+  `category` (home, short_term),  
+  `condition` (new, used),  
+  `is_furnished` (Yes, No),  
+  `parking_space` (Yes, No),  
+  `amenities` (WiFi, Gym etc.),  
+  `region` (Downtown, Suburbs, Campus Area, City Center),  
+  `locality` (North, South, East, West, Central)
 
 **Visualizations:**
 
@@ -23,7 +42,7 @@ Since there is no public dataset for student housing in Rwanda, I used a rich Ka
 
 
 ## Models
-I implemented multiple regression models to predict rental prices:
+I experimented with multiple regression models to predict rental prices:
 
 1. **Gradient Descent Linear Regression** – optimized iteratively by minimizing loss.  
 2. **Linear Regression (scikit-learn)** – standard least-squares method.  
@@ -33,16 +52,15 @@ I implemented multiple regression models to predict rental prices:
 The **Random Forest Regressor** performed best (lowest MSE). I saved this model as `best_model.pkl`, along with `scaler.pkl` and `feature_names.pkl` for deployment.
 
 **Prediction Flow:**
-- Flutter frontend sends JSON input to the API.
-- API validates and scales numeric features, encodes categorical features.
-- Scaled input is passed to the trained model.
-- API returns predicted rent.
-
+- The Flutter frontend sends JSON input to the API.
+- The API validates and scales numeric features, encodes categorical features, and ensures multi-select amenities are properly handled.
+- The trained model predicts rent using the prepared inputs.
+- The API returns the predicted rent to the frontend.
 
 ## API Endpoint
 The API is publicly available and tested with Swagger UI:
 
-**POST** `https://summative-mobile-app-regression-analysis.onrender.com/predict`
+**POST** `https://summative-mobile-app-regression-gh.onrender.com/predict`
 
 **Example Input:**
 
@@ -53,9 +71,12 @@ The API is publicly available and tested with Swagger UI:
   "latitude": 1.9579,
   "longitude": 30.1127,
   "category": "home",
-  "price_type": "Monthly",
-  "has_photo": "Yes",
-  "pets_allowed": "Dogs"
+  "condition": "new",
+  "is_furnished": "Yes",
+  "parking_space": "Yes",
+  "amenities": "WiFi,Gym",
+  "region": "Downtown",
+  "locality": "Central"
 }
 
 
@@ -63,41 +84,51 @@ The API is publicly available and tested with Swagger UI:
 
 {
   "predicted_rent": 450.0,
-  "note": "Quantitative values were fixed if missing or invalid"
+  "error": null
 }
 
 
-**Swagger UI:** `https://summative-mobile-app-regression-analysis.onrender.com/docs`
+**Swagger UI:** [https://summative-mobile-app-regression-gh.onrender.com/docs](https://summative-mobile-app-regression-gh.onrender.com/docs)
 
 
 ## Flutter Mobile App
 
 ### Installation
 
-1. Clone the repository:
+1. **Clone the repository:**
 
-git clone <your-repo-url>
-cd <project-folder>
+git clone `https://github.com/PapiWinnie/Summative_Mobile_App_Regression_GH.git`
 
 
-2. Install dependencies:
+2. **Set up Python virtual environment for backend (optional but recommended):**
 
+python -m venv .venv
+# On Windows
+.venv\Scripts\activate
+# On macOS/Linux
+source .venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+
+3. **Download the dataset** as mentioned above and place it at:
+
+linear_regression_model/summative/linear_regression/apartments_for_rent_classified_10K.csv
+
+4. **Run the Flutter app on an emulator or device:**
 
 flutter pub get
-
-
-3. Run the app on an emulator or device:
-
-
 flutter run
 
 
 ### Features Implemented
 
 * Input fields for all model variables.
+* Multi-select amenities support.
 * **Predict** button to trigger API call.
 * Display area shows predicted rent or error messages if inputs are invalid.
-* Organized and user-friendly layout.
+* Clean, organized, and user-friendly layout.
 
 **Example Screenshot:**
 ![App Screenshot](images/flutter_app_screenshot.png)
@@ -110,6 +141,4 @@ flutter run
 * Demonstrates the mobile app making predictions and API Swagger UI tests.
 * Shows model creation, training, and performance evaluation (MSE for Linear Regression, Decision Tree, and Random Forest).
 * Explains why Random Forest was selected based on dataset characteristics and model performance.
-
-
 
