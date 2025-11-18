@@ -6,6 +6,7 @@ seaborn
 scikit-learn
 joblib
 kagglehub
+gdown
 
 # API
 fastapi

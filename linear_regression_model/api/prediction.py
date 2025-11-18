@@ -8,12 +8,40 @@ import numpy as np
 import joblib
 import os
 import sys
+import gdown
+
+# Download model from Google Drive if not present
+def download_models():
+    """Download model files from Google Drive if they don't exist locally"""
+    
+    # Download best_model.pkl (105MB file)
+    if not os.path.exists("best_model.pkl"):
+        print("Downloading best_model.pkl from Google Drive...")
+        try:
+            gdown.download(
+                "https://drive.google.com/uc?id=1XVAsBCYOa6RwtCSvjsqH57ypEhP9ouUH",
+                "best_model.pkl",
+                quiet=False
+            )
+            print("best_model.pkl downloaded successfully!")
+        except Exception as e:
+            print(f"Error downloading best_model.pkl: {e}", file=sys.stderr)
+            raise e
+    else:
+        print("best_model.pkl already exists locally.")
+    
+    # Note: Add similar blocks for scaler.pkl and feature_names.pkl if they're also large
+    # For now, assuming they're small enough to be in the repo
+
+# Download models before loading
+download_models()
 
 # Load model, scaler, and features
 try:
     model = joblib.load("best_model.pkl")
     scaler = joblib.load("scaler.pkl")
     feature_names = joblib.load("feature_names.pkl")
+    print("All models loaded successfully!")
 except Exception as e:
     print(f"Error loading model/scaler/features: {e}", file=sys.stderr)
     raise e
