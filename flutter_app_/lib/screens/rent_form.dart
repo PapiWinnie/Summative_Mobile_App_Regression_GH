@@ -23,6 +23,9 @@ class _RentFormScreenState extends State<RentFormScreen> {
   String? _condition;
   String? _isFurnished;
   String? _parkingSpace;
+  String? _region;
+  String? _locality;
+  List<String> _selectedAmenities = [];
 
   // Error messages
   String? _bathroomsError;
@@ -30,6 +33,7 @@ class _RentFormScreenState extends State<RentFormScreen> {
   String? _squareFeetError;
   String? _latitudeError;
   String? _longitudeError;
+  String? _amenitiesError;
 
   // State variables
   bool _isLoading = false;
@@ -39,10 +43,25 @@ class _RentFormScreenState extends State<RentFormScreen> {
   final ApiService _apiService = ApiService();
 
   // Dropdown options
-  final List<String> _categoryOptions = ['home', 'short_term'];
-  final List<String> _conditionOptions = ['new', 'used'];
-  final List<String> _isFurnishedOptions = ['Yes', 'No'];
+  final List<String> _categoryOptions = ['Flats', 'Detached', 'Townhouse', 'Duplex', 'Semi-Detached'];
+  final List<String> _conditionOptions = ['New', 'Used', 'Renovated'];
+  final List<String> _isFurnishedOptions = ['Furnished', 'Unfurnished'];
   final List<String> _parkingSpaceOptions = ['Yes', 'No'];
+  final List<String> _amenitiesOptions = [
+    'Microwave',
+    'Air Conditioning',
+    'Refrigerator',
+    'Wardrobe',
+    'TV',
+    'Hot Water',
+    'Wi-Fi',
+    'Chandelier',
+    'Dining Area',
+    'Balcony',
+    'Apartment'
+  ];
+  final List<String> _regionOptions = ['Downtown', 'Suburbs', 'Campus Area', 'City Center'];
+  final List<String> _localityOptions = ['North', 'South', 'East', 'West', 'Central'];
 
   @override
   void dispose() {
@@ -77,7 +96,10 @@ class _RentFormScreenState extends State<RentFormScreen> {
         _category != null &&
         _condition != null &&
         _isFurnished != null &&
-        _parkingSpace != null;
+        _parkingSpace != null &&
+        _region != null &&
+        _locality != null &&
+        _selectedAmenities.isNotEmpty;
   }
 
   Future<void> _submitForm() async {
@@ -98,6 +120,9 @@ class _RentFormScreenState extends State<RentFormScreen> {
         condition: _condition!,
         isFurnished: _isFurnished!,
         parkingSpace: _parkingSpace!,
+        amenities: _selectedAmenities.join(','), // send comma-separated string
+        region: _region!,
+        locality: _locality!,
       );
 
       final response = await _apiService.predictRent(rentInput);
@@ -106,7 +131,7 @@ class _RentFormScreenState extends State<RentFormScreen> {
         _isLoading = false;
         if (response.error != null) {
           _errorMessage = response.error;
-        } else {
+        } else if (response.predictedRent != null) {
           _predictedRent = response.predictedRent;
         }
       });
@@ -130,23 +155,16 @@ class _RentFormScreenState extends State<RentFormScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // Form card
               Card(
                 elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Text(
-                        'Property Details',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
+                      const Text('Property Details', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 16),
-
                       NumericFormField(
                         label: 'Bathrooms',
                         hint: 'Enter number of bathrooms (1-20)',
@@ -154,11 +172,9 @@ class _RentFormScreenState extends State<RentFormScreen> {
                         minValue: 1,
                         maxValue: 20,
                         errorText: _bathroomsError,
-                        onChanged: (value) {
-                          setState(() {
-                            _bathroomsError = _validateNumericField(value, 1, 20, 'Bathrooms');
-                          });
-                        },
+                        onChanged: (value) => setState(() {
+                          _bathroomsError = _validateNumericField(value, 1, 20, 'Bathrooms');
+                        }),
                       ),
                       NumericFormField(
                         label: 'Bedrooms',
@@ -167,11 +183,9 @@ class _RentFormScreenState extends State<RentFormScreen> {
                         minValue: 1,
                         maxValue: 20,
                         errorText: _bedroomsError,
-                        onChanged: (value) {
-                          setState(() {
-                            _bedroomsError = _validateNumericField(value, 1, 20, 'Bedrooms');
-                          });
-                        },
+                        onChanged: (value) => setState(() {
+                          _bedroomsError = _validateNumericField(value, 1, 20, 'Bedrooms');
+                        }),
                       ),
                       NumericFormField(
                         label: 'Square Feet',
@@ -180,11 +194,9 @@ class _RentFormScreenState extends State<RentFormScreen> {
                         minValue: 50,
                         maxValue: 10000,
                         errorText: _squareFeetError,
-                        onChanged: (value) {
-                          setState(() {
-                            _squareFeetError = _validateNumericField(value, 50, 10000, 'Square feet');
-                          });
-                        },
+                        onChanged: (value) => setState(() {
+                          _squareFeetError = _validateNumericField(value, 50, 10000, 'Square Feet');
+                        }),
                       ),
                       NumericFormField(
                         label: 'Latitude',
@@ -193,11 +205,9 @@ class _RentFormScreenState extends State<RentFormScreen> {
                         minValue: -90,
                         maxValue: 90,
                         errorText: _latitudeError,
-                        onChanged: (value) {
-                          setState(() {
-                            _latitudeError = _validateNumericField(value, -90, 90, 'Latitude');
-                          });
-                        },
+                        onChanged: (value) => setState(() {
+                          _latitudeError = _validateNumericField(value, -90, 90, 'Latitude');
+                        }),
                       ),
                       NumericFormField(
                         label: 'Longitude',
@@ -206,20 +216,15 @@ class _RentFormScreenState extends State<RentFormScreen> {
                         minValue: -180,
                         maxValue: 180,
                         errorText: _longitudeError,
-                        onChanged: (value) {
-                          setState(() {
-                            _longitudeError = _validateNumericField(value, -180, 180, 'Longitude');
-                          });
-                        },
+                        onChanged: (value) => setState(() {
+                          _longitudeError = _validateNumericField(value, -180, 180, 'Longitude');
+                        }),
                       ),
-
                       const SizedBox(height: 16),
                       const Divider(),
                       const SizedBox(height: 16),
-
                       const Text('Additional Information', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 16),
-
                       DropdownFormField(
                         label: 'Category',
                         value: _category,
@@ -244,9 +249,29 @@ class _RentFormScreenState extends State<RentFormScreen> {
                         items: _parkingSpaceOptions,
                         onChanged: (value) => setState(() => _parkingSpace = value),
                       ),
-
+                      const SizedBox(height: 8),
+                      AmenitiesSelector(
+                        options: _amenitiesOptions,
+                        onSelectionChanged: (selected) {
+                          setState(() {
+                            _selectedAmenities = selected;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      DropdownFormField(
+                        label: 'Region',
+                        value: _region,
+                        items: _regionOptions,
+                        onChanged: (value) => setState(() => _region = value),
+                      ),
+                      DropdownFormField(
+                        label: 'Locality',
+                        value: _locality,
+                        items: _localityOptions,
+                        onChanged: (value) => setState(() => _locality = value),
+                      ),
                       const SizedBox(height: 24),
-
                       ElevatedButton(
                         onPressed: _isFormValid() && !_isLoading ? _submitForm : null,
                         style: ElevatedButton.styleFrom(
@@ -259,10 +284,7 @@ class _RentFormScreenState extends State<RentFormScreen> {
                             ? const SizedBox(
                                 height: 20,
                                 width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                ),
+                                child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
                               )
                             : const Text('Predict Rent', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
                       ),
@@ -270,14 +292,9 @@ class _RentFormScreenState extends State<RentFormScreen> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 16),
-
-              if (_predictedRent != null)
-                PredictionResultCard(predictedRent: _predictedRent!),
-
-              if (_errorMessage != null)
-                ErrorMessageCard(errorMessage: _errorMessage!),
+              if (_predictedRent != null) PredictionResultCard(predictedRent: _predictedRent!),
+              if (_errorMessage != null) ErrorMessageCard(errorMessage: _errorMessage!),
             ],
           ),
         ),

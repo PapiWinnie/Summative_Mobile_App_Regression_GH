@@ -66,7 +66,7 @@ class DropdownFormField extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: DropdownButtonFormField<String>(
-        initialValue: value,
+        value: value,
         decoration: InputDecoration(
           labelText: label,
           errorText: errorText,
@@ -84,6 +84,55 @@ class DropdownFormField extends StatelessWidget {
         }).toList(),
         onChanged: onChanged,
       ),
+    );
+  }
+}
+
+/// Reusable widget for multi-select amenities
+class AmenitiesSelector extends StatefulWidget {
+  final List<String> options;
+  final Function(List<String>) onSelectionChanged;
+
+  const AmenitiesSelector({
+    super.key,
+    required this.options,
+    required this.onSelectionChanged,
+  });
+
+  @override
+  State<AmenitiesSelector> createState() => _AmenitiesSelectorState();
+}
+
+class _AmenitiesSelectorState extends State<AmenitiesSelector> {
+  List<String> _selectedAmenities = [];
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Amenities',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        ...widget.options.map((amenity) {
+          return CheckboxListTile(
+            title: Text(amenity),
+            value: _selectedAmenities.contains(amenity),
+            onChanged: (bool? value) {
+              setState(() {
+                if (value == true) {
+                  _selectedAmenities.add(amenity);
+                } else {
+                  _selectedAmenities.remove(amenity);
+                }
+                widget.onSelectionChanged(_selectedAmenities);
+              });
+            },
+            controlAffinity: ListTileControlAffinity.leading,
+          );
+        }).toList(),
+      ],
     );
   }
 }
@@ -180,4 +229,4 @@ class ErrorMessageCard extends StatelessWidget {
       ),
     );
   }
-} 
+}
