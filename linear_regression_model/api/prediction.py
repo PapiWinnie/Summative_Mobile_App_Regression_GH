@@ -30,8 +30,6 @@ def download_models():
     else:
         print("best_model.pkl already exists locally.")
     
-    # Note: Add similar blocks for scaler.pkl and feature_names.pkl if they're also large
-    # For now, assuming they're small enough to be in the repo
 
 # Download models before loading
 download_models()
