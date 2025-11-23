@@ -130,13 +130,13 @@ flutter run
 * Display area shows predicted rent or error messages if inputs are invalid.
 * Clean, organized, and user-friendly layout.
 
-**Example Screenshot:**
-![App Screenshot](images/flutter_app_screenshot.png)
 
 
 ## Demo Video
 
-[YouTube Demo – 5 Minutes](https://youtu.be/<your-video-id>)
+* Loom doesn't allow to me download my video, hence I had to screen record the loom video. In case the youtube video recording is blury, here is the direct loom link [Loom Video Link](https://www.loom.com/share/fc244de9633e4e17a233a20530298b2a)
+
+[ Youtube Demo – 5 Minutes](https://youtu.be/0CTYHea3kJM)
 
 * Demonstrates the mobile app making predictions and API Swagger UI tests.
 * Shows model creation, training, and performance evaluation (MSE for Linear Regression, Decision Tree, and Random Forest).

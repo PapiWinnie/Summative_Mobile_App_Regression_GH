@@ -9,9 +9,9 @@ class RentInput {
   final String condition;
   final String isFurnished;
   final String parkingSpace;
-  final String amenities;  // NEW: Required by backend
-  final String region;     // NEW: Required by backend
-  final String locality;   // NEW: Required by backend
+  final String amenities;  
+  final String region;     
+  final String locality;   
 
   RentInput({
     required this.bathrooms,
